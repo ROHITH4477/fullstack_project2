@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { guides, attractions } from "@/lib/mockData";
+import { guides, attractions as initialAttractions } from "@/lib/mockData";
 import { toast } from "sonner";
 import { Star, MapPin, MessageSquare, Calendar, BookOpen, Camera, TrendingUp } from "lucide-react";
 
@@ -12,6 +12,7 @@ export default function GuideDashboard() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
   const [isCreatingItinerary, setIsCreatingItinerary] = useState(false);
+  const [isAddingAttraction, setIsAddingAttraction] = useState(false);
   const [editingItineraryId, setEditingItineraryId] = useState<string | null>(null);
   const [itineraryTitle, setItineraryTitle] = useState("");
   const [itineraryDays, setItineraryDays] = useState(1);
@@ -22,6 +23,14 @@ export default function GuideDashboard() {
   const [guideEmail, setGuideEmail] = useState(user?.email || "");
   const [guideAvatar, setGuideAvatar] = useState(user?.avatar || "");
   const [guideAbout, setGuideAbout] = useState("");
+  const [newAttractionName, setNewAttractionName] = useState("");
+  const [newAttractionLocation, setNewAttractionLocation] = useState("");
+  const [newAttractionImage, setNewAttractionImage] = useState("");
+  const [newAttractionCategory, setNewAttractionCategory] = useState("Nature");
+  const [newAttractionDescription, setNewAttractionDescription] = useState("");
+  const [newAttractionDistance, setNewAttractionDistance] = useState("1 km");
+  const [newAttractionBestTime, setNewAttractionBestTime] = useState("October - March");
+  const [newAttractionEntryFee, setNewAttractionEntryFee] = useState(0);
 
   const [bookingRequests, setBookingRequests] = useState([
     { id: "b1", tourist: "Priya Sharma", dates: "Mar 20-22", activity: "Trekking", amount: 3000, status: "Confirmed" },
@@ -55,6 +64,8 @@ export default function GuideDashboard() {
     { id: "2", title: "Hidden Gems of Old Manali", days: 1, places: 5, rating: 4.7, views: 890 },
     { id: "3", title: "Photography Tour - Mountain Sunrise to Sunset", days: 2, places: 6, rating: 4.8, views: 652 },
   ]);
+
+  const [guideAttractions, setGuideAttractions] = useState(initialAttractions);
 
   const handleBookingStatus = (requestId: string, status: "Confirmed" | "Rejected") => {
     setBookingRequests((prev) => prev.map((request) => (request.id === requestId ? { ...request, status } : request)));
@@ -141,6 +152,58 @@ export default function GuideDashboard() {
     ]);
     setIsCreatingItinerary(false);
     toast.success("Itinerary created.");
+  };
+
+  const handleAttractionImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setNewAttractionImage(String(reader.result || ""));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const resetAttractionForm = () => {
+    setNewAttractionName("");
+    setNewAttractionLocation("");
+    setNewAttractionImage("");
+    setNewAttractionCategory("Nature");
+    setNewAttractionDescription("");
+    setNewAttractionDistance("1 km");
+    setNewAttractionBestTime("October - March");
+    setNewAttractionEntryFee(0);
+  };
+
+  const handleAddAttraction = () => {
+    if (!newAttractionName.trim() || !newAttractionLocation.trim() || !newAttractionDescription.trim()) {
+      toast.error("Please fill attraction name, location and description.");
+      return;
+    }
+
+    if (!newAttractionImage) {
+      toast.error("Please upload an attraction image.");
+      return;
+    }
+
+    const newAttraction = {
+      id: Date.now().toString(),
+      name: newAttractionName.trim(),
+      location: newAttractionLocation.trim(),
+      image: newAttractionImage,
+      rating: 4.7,
+      entryFee: Math.max(0, newAttractionEntryFee || 0),
+      bestTime: newAttractionBestTime.trim() || "October - March",
+      distance: newAttractionDistance.trim() || "1 km",
+      description: newAttractionDescription.trim(),
+      category: newAttractionCategory,
+    };
+
+    setGuideAttractions((prev) => [newAttraction, ...prev]);
+    setIsAddingAttraction(false);
+    resetAttractionForm();
+    toast.success("Attraction added successfully.");
   };
 
   const handleSendReply = (targetId: string, targetName: string) => {
@@ -322,12 +385,18 @@ export default function GuideDashboard() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-foreground">Tourist Attractions</h2>
-                <button className="btn-primary text-sm flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    resetAttractionForm();
+                    setIsAddingAttraction(true);
+                  }}
+                  className="btn-primary text-sm flex items-center gap-2"
+                >
                   <Camera className="h-4 w-4" /> Add Attraction
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {attractions.map((attr) => (
+                {guideAttractions.map((attr) => (
                   <div key={attr.id} className="card-travel flex gap-4 p-4">
                     <img
                       src={attr.image}
@@ -557,6 +626,42 @@ export default function GuideDashboard() {
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setEditingItineraryId(null)} className="btn-outline-primary text-sm py-1.5">Cancel</button>
                 <button onClick={handleSaveItinerary} className="btn-primary text-sm py-1.5">Save</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isAddingAttraction && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-2xl w-full max-w-xl p-5">
+              <h3 className="text-lg font-bold text-foreground mb-4">Add Attraction</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <input value={newAttractionName} onChange={(e) => setNewAttractionName(e.target.value)} className="input-search w-full md:col-span-2" placeholder="Attraction name" />
+                <input value={newAttractionLocation} onChange={(e) => setNewAttractionLocation(e.target.value)} className="input-search w-full" placeholder="Location" />
+                <input value={newAttractionDistance} onChange={(e) => setNewAttractionDistance(e.target.value)} className="input-search w-full" placeholder="Distance (e.g. 2 km)" />
+                <input value={newAttractionBestTime} onChange={(e) => setNewAttractionBestTime(e.target.value)} className="input-search w-full" placeholder="Best time" />
+                <input type="number" min={0} value={newAttractionEntryFee} onChange={(e) => setNewAttractionEntryFee(Number(e.target.value) || 0)} className="input-search w-full" placeholder="Entry fee" />
+                <select value={newAttractionCategory} onChange={(e) => setNewAttractionCategory(e.target.value)} className="input-search w-full">
+                  <option>Nature</option>
+                  <option>Adventure</option>
+                  <option>Heritage</option>
+                  <option>Spiritual</option>
+                </select>
+                <textarea value={newAttractionDescription} onChange={(e) => setNewAttractionDescription(e.target.value)} className="input-search w-full md:col-span-2 h-24" placeholder="Description" />
+                <div className="md:col-span-2 flex items-center gap-3">
+                  <label className="btn-outline-primary text-sm py-1.5 px-3 cursor-pointer">
+                    Upload Image
+                    <input type="file" accept="image/*" className="hidden" onChange={handleAttractionImageUpload} />
+                  </label>
+                  <span className="text-xs text-muted-foreground">{newAttractionImage ? "Image selected" : "No image selected"}</span>
+                </div>
+                {newAttractionImage && (
+                  <img src={newAttractionImage} alt="Attraction preview" className="md:col-span-2 w-full h-40 rounded-xl object-cover border border-border" />
+                )}
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button onClick={() => setIsAddingAttraction(false)} className="btn-outline-primary text-sm py-1.5">Cancel</button>
+                <button onClick={handleAddAttraction} className="btn-primary text-sm py-1.5">Add Attraction</button>
               </div>
             </div>
           </div>

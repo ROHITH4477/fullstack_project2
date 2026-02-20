@@ -39,7 +39,7 @@ export const homestays = [
     price: 1200,
     rating: 4.8,
     reviews: 124,
-    image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80",
     category: "Nature Stay",
     amenities: ["WiFi", "Home Food", "Parking", "Mountain View"],
     description: "A cozy wooden cottage nestled in the Himalayan foothills with breathtaking mountain views and home-cooked meals.",
