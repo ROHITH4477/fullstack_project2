@@ -1,0 +1,13 @@
+Candidate Resume
+
+Name: Rahul Chauhan
+Role Applied: Local Guide
+Location: Darjeeling
+Experience: 8 years
+Specializations: Heritage Walks, Tea Estate Tours, Sunrise Treks
+Languages: Hindi, Nepali, English
+Phone: +91 90000 10003
+Email: rahul.guide@example.com
+
+Summary:
+Senior guide with deep regional knowledge and strong communication for international tourists.
