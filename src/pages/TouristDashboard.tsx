@@ -38,7 +38,7 @@ export default function TouristDashboard() {
 
   const [upcomingTrips, setUpcomingTrips] = useState([
     { id: "1", homestay: "Mountain Dew Cottage", location: "Manali", dates: "Mar 15 - Mar 18, 2025", guests: 2, amount: 3600, status: "Confirmed", image: "/src/assets/homestay-1.jpg" },
-    { id: "2", homestay: "Kerala Heritage Home", location: "Munnar", dates: "Apr 5 - Apr 8, 2025", guests: 4, amount: 5400, status: "Pending", image: "/src/assets/homestay-3.jpg" },
+    { id: "2", homestay: "Kerala Heritage Home", location: "Munnar", dates: "Apr 5 - Apr 8, 2025", guests: 4, amount: 5400, status: "Pending", image: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=400&q=80" },
   ]);
 
   const handleStatClick = (label: string) => {
