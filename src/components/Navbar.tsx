@@ -26,6 +26,29 @@ export default function Navbar() {
     }
   };
 
+  const getDefaultDashboardTab = () => {
+    if (!user) return "overview";
+    switch (user.role) {
+      case "tourist": return "discover";
+      case "host": return "overview";
+      case "guide": return "overview";
+      case "admin": return "overview";
+      default: return "overview";
+    }
+  };
+
+  const openDashboard = () => {
+    navigate(`${getDashboardPath()}?tab=${getDefaultDashboardTab()}&t=${Date.now()}`);
+    setProfileOpen(false);
+    setMobileOpen(false);
+  };
+
+  const openProfileSettings = () => {
+    navigate(`${getDashboardPath()}?tab=profile&t=${Date.now()}`);
+    setProfileOpen(false);
+    setMobileOpen(false);
+  };
+
   const navLinks = [
     { label: "Home", path: "/" },
     { label: "Homestays", path: "/homestays" },
@@ -99,20 +122,20 @@ export default function Navbar() {
                         <p className="font-semibold text-sm text-foreground">{user?.name}</p>
                         <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
                       </div>
-                      <Link
-                        to={getDashboardPath()}
-                        className="flex items-center gap-2 px-4 py-2.5 hover:bg-muted transition-colors text-sm text-foreground"
-                        onClick={() => setProfileOpen(false)}
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 px-4 py-2.5 hover:bg-muted transition-colors text-sm text-foreground w-full text-left"
+                        onClick={openDashboard}
                       >
                         <User className="h-4 w-4" /> My Dashboard
-                      </Link>
-                      <Link
-                        to={`${getDashboardPath()}?tab=profile`}
-                        className="flex items-center gap-2 px-4 py-2.5 hover:bg-muted transition-colors text-sm text-foreground"
-                        onClick={() => setProfileOpen(false)}
+                      </button>
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 px-4 py-2.5 hover:bg-muted transition-colors text-sm text-foreground w-full text-left"
+                        onClick={openProfileSettings}
                       >
                         <User className="h-4 w-4" /> Profile Settings
-                      </Link>
+                      </button>
                       <button
                         onClick={() => { logout(); navigate("/"); setProfileOpen(false); }}
                         className="flex items-center gap-2 w-full px-4 py-2.5 hover:bg-red-50 transition-colors text-sm text-destructive"
@@ -159,12 +182,12 @@ export default function Navbar() {
           <div className="pt-2 border-t border-border mt-2">
             {isLoggedIn ? (
               <div className="space-y-1">
-                <Link to={getDashboardPath()} className="block px-3 py-2.5 rounded-lg hover:bg-muted text-sm text-foreground" onClick={() => setMobileOpen(false)}>
+                <button type="button" className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-muted text-sm text-foreground" onClick={openDashboard}>
                   My Dashboard
-                </Link>
-                <Link to={`${getDashboardPath()}?tab=profile`} className="block px-3 py-2.5 rounded-lg hover:bg-muted text-sm text-foreground" onClick={() => setMobileOpen(false)}>
+                </button>
+                <button type="button" className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-muted text-sm text-foreground" onClick={openProfileSettings}>
                   Profile Settings
-                </Link>
+                </button>
                 <button
                   onClick={() => { logout(); navigate("/"); setMobileOpen(false); }}
                   className="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-red-50 text-sm text-destructive"

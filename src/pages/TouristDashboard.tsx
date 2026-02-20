@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HomestayCard from "@/components/HomestayCard";
-import { homestays } from "@/lib/mockData";
+import { homestays, attractions } from "@/lib/mockData";
 import { toast } from "sonner";
 import {
   Search, Heart, MapPin, Calendar, Bell, LayoutDashboard,
@@ -29,6 +29,7 @@ export default function TouristDashboard() {
 
   const tabs = [
     { id: "discover", label: "Discover", icon: LayoutDashboard },
+    { id: "attractions", label: "Attractions", icon: Bookmark },
     { id: "wishlist", label: "Wishlist", icon: Heart },
     { id: "bookings", label: "My Bookings", icon: Calendar },
     { id: "history", label: "History", icon: History },
@@ -65,8 +66,15 @@ export default function TouristDashboard() {
 
   useEffect(() => {
     const tab = new URLSearchParams(location.search).get("tab");
-    if (tab === "profile") {
-      setActiveTab("profile");
+    const allowedTabs = new Set(["discover", "attractions", "wishlist", "bookings", "history", "profile"]);
+
+    if (tab && allowedTabs.has(tab)) {
+      setActiveTab(tab);
+      return;
+    }
+
+    if (!tab) {
+      setActiveTab("discover");
     }
   }, [location.search]);
 
@@ -242,6 +250,64 @@ export default function TouristDashboard() {
                     <HomestayCard key={h.id} homestay={h} />
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" /> Nearby Attractions
+                  </h2>
+                  <button onClick={() => setActiveTab("attractions")} className="text-primary text-sm font-medium">View all</button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {attractions.slice(0, 3).map((attr) => (
+                    <div key={attr.id} className="card-travel overflow-hidden">
+                      <img
+                        src={attr.image}
+                        alt={attr.name}
+                        className="w-full h-40 object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80"; }}
+                      />
+                      <div className="p-4">
+                        <h3 className="font-semibold text-foreground">{attr.name}</h3>
+                        <p className="text-xs text-muted-foreground mt-1">{attr.location} • {attr.bestTime}</p>
+                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{attr.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "attractions" && (
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" /> Tourist Attractions
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {attractions.map((attr) => (
+                  <div key={attr.id} className="card-travel overflow-hidden">
+                    <img
+                      src={attr.image}
+                      alt={attr.name}
+                      className="w-full h-44 object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80"; }}
+                    />
+                    <div className="p-4">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <h3 className="font-bold text-foreground">{attr.name}</h3>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">{attr.category}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">📍 {attr.location} • {attr.distance}</p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{attr.description}</p>
+                      <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+                        <span>🕐 {attr.bestTime}</span>
+                        <span>{attr.entryFee === 0 ? "Free Entry" : `₹${attr.entryFee} entry`}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

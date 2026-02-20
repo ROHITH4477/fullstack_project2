@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -32,6 +32,13 @@ export default function AdminDashboard() {
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | "tourist" | "host" | "guide">("all");
   const [candidateFilter, setCandidateFilter] = useState<"all" | "pending" | "interviewed" | "appointed">("all");
   const [pendingDecision, setPendingDecision] = useState<{ candidateId: string; action: "appoint" | "reject" } | null>(null);
+  const [users, setUsers] = useState([
+    { id: "u1", name: "Riya Sharma", role: "tourist", email: "riya@example.com", city: "Delhi", status: "Active" },
+    { id: "u2", name: "Arun Singh", role: "host", email: "arun.host@example.com", city: "Manali", status: "Active" },
+    { id: "u3", name: "Neha Das", role: "guide", email: "neha.guide@example.com", city: "Shillong", status: "Pending" },
+    { id: "u4", name: "Rohit Rao", role: "tourist", email: "rohit@example.com", city: "Bengaluru", status: "Active" },
+    { id: "u5", name: "Karan Patel", role: "host", email: "karan.host@example.com", city: "Goa", status: "Pending" },
+  ]);
 
   const [candidates, setCandidates] = useState<Candidate[]>([
     { id: "c1", name: "Ankita Verma", role: "guide", city: "Manali", experience: "6 years", email: "ankita.guide@example.com", status: "applied", resumeFile: "/resumes/ankita-verma-resume.pdf" },
@@ -47,18 +54,12 @@ export default function AdminDashboard() {
   const pendingInterviews = candidates.filter((candidate) => candidate.status === "applied" || candidate.status === "interview_scheduled").length;
   const appointedCount = candidates.filter((candidate) => candidate.status === "appointed").length;
 
-  const users = useMemo(
-    () => [
-      { id: "u1", name: "Riya Sharma", role: "tourist", email: "riya@example.com", city: "Delhi", status: "Active" },
-      { id: "u2", name: "Arun Singh", role: "host", email: "arun.host@example.com", city: "Manali", status: "Active" },
-      { id: "u3", name: "Neha Das", role: "guide", email: "neha.guide@example.com", city: "Shillong", status: "Pending" },
-      { id: "u4", name: "Rohit Rao", role: "tourist", email: "rohit@example.com", city: "Bengaluru", status: "Active" },
-      { id: "u5", name: "Karan Patel", role: "host", email: "karan.host@example.com", city: "Goa", status: "Pending" },
-    ],
-    [],
-  );
-
   const visibleUsers = users.filter((entry) => userRoleFilter === "all" || entry.role === userRoleFilter);
+
+  const handleUserDecision = (userId: string, status: "Active" | "Rejected") => {
+    setUsers((prev) => prev.map((entry) => (entry.id === userId ? { ...entry, status } : entry)));
+    toast.success(status === "Active" ? "User request approved." : "User request rejected.");
+  };
 
   const visibleCandidates = candidates.filter((candidate) => {
     if (candidateFilter === "pending") {
@@ -287,9 +288,25 @@ export default function AdminDashboard() {
                     </div>
                     <div className="text-right">
                       <p className="text-xs capitalize text-muted-foreground">{entry.role}</p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${entry.status === "Active" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${entry.status === "Active" ? "bg-green-100 text-green-700" : entry.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-destructive"}`}>
                         {entry.status}
                       </span>
+                      {entry.status === "Pending" && (
+                        <div className="flex gap-2 mt-2 justify-end">
+                          <button
+                            onClick={() => handleUserDecision(entry.id, "Active")}
+                            className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-lg hover:bg-green-200 transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleUserDecision(entry.id, "Rejected")}
+                            className="text-xs bg-red-100 text-destructive px-2.5 py-1 rounded-lg hover:bg-red-200 transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

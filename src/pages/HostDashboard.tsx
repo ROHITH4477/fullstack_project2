@@ -25,9 +25,16 @@ export default function HostDashboard() {
   const [newPropertyPrice, setNewPropertyPrice] = useState(1200);
 
   const [properties, setProperties] = useState([
-    { id: "1", name: "Mountain View Cottage", location: "Manali", price: 1200, status: "Active", bookings: 12, rating: 4.8, image: "/src/assets/homestay-1.jpg" },
-    { id: "2", name: "Garden Guest Room", location: "Shimla", price: 850, status: "Active", bookings: 7, rating: 4.6, image: "/src/assets/homestay-3.jpg" },
+    { id: "1", name: "Mountain View Cottage", location: "Manali", price: 1200, status: "Active", bookings: 12, rating: 4.8, image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&q=80" },
+    { id: "2", name: "Garden Guest Room", location: "Shimla", price: 850, status: "Active", bookings: 7, rating: 4.6, image: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=600&q=80" },
   ]);
+
+  const propertyImagePool = [
+    "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=600&q=80",
+    "https://images.unsplash.com/photo-1494526585095-c41746248156?w=600&q=80",
+    "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=600&q=80",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80",
+  ];
 
   const [bookingRequests, setBookingRequests] = useState([
     { id: "1", guest: "Sneha Patel", dates: "Mar 15-18", guests: 2, property: "Mountain View Cottage", amount: 3600, status: "pending", avatar: "https://i.pravatar.cc/50?img=25" },
@@ -66,6 +73,8 @@ export default function HostDashboard() {
       return;
     }
 
+    const randomImage = propertyImagePool[Math.floor(Math.random() * propertyImagePool.length)];
+
     const newProperty = {
       id: Date.now().toString(),
       name: newPropertyName,
@@ -74,7 +83,7 @@ export default function HostDashboard() {
       status: "Active",
       bookings: 0,
       rating: 0,
-      image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&q=80",
+      image: randomImage,
     };
 
     setProperties((prev) => [newProperty, ...prev]);
@@ -92,8 +101,15 @@ export default function HostDashboard() {
 
   useEffect(() => {
     const tab = new URLSearchParams(location.search).get("tab");
-    if (tab === "profile") {
-      setActiveTab("profile");
+    const allowedTabs = new Set(["overview", "properties", "bookings", "earnings", "reviews", "messages", "profile"]);
+
+    if (tab && allowedTabs.has(tab)) {
+      setActiveTab(tab);
+      return;
+    }
+
+    if (!tab) {
+      setActiveTab("overview");
     }
   }, [location.search]);
 
