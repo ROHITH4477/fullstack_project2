@@ -69,13 +69,23 @@ Google sign-in is integrated in the auth page and is enabled when `VITE_GOOGLE_C
 3. Create an OAuth Client ID of type **Web application**.
 4. Add authorized JavaScript origins:
 	- `http://localhost:5173`
+	- `https://<your-netlify-site>.netlify.app`
+	- `https://<your-custom-domain>` (if applicable)
 5. Copy client ID and create a `.env` file in the project root:
 
 ```sh
 VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 ```
 
-6. Restart dev server:
+6. For Netlify deploys, add the same variable in **Site settings → Environment variables**:
+
+```sh
+VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
+```
+
+7. Redeploy the site after adding/changing env vars.
+
+8. Restart dev server (local):
 
 ```sh
 npm run dev

@@ -4,6 +4,14 @@ import { Eye, EyeOff, Home, ArrowLeft, User, Building, Map, Shield } from "lucid
 import { GoogleLogin } from "@react-oauth/google";
 import heroImg from "@/assets/hero-bg.jpg";
 import { useAuth } from "@/contexts/AuthContext";
+
+const decodeGoogleCredential = (credential) => {
+  const payloadPart = credential.split(".")[1] || "";
+  const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+  return JSON.parse(atob(padded));
+};
+
 const roles = [
     {
         id: "tourist",
@@ -47,6 +55,7 @@ export default function Auth() {
     const navigate = useNavigate();
   const { login, signup, loginWithGoogle, isLoggedIn, user } = useAuth();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
     const [isSignup, setIsSignup] = useState(searchParams.get("mode") === "signup");
     const [selectedRole, setSelectedRole] = useState("tourist");
     const [showPassword, setShowPassword] = useState(false);
@@ -112,13 +121,11 @@ export default function Auth() {
     };
       const handleGoogleSuccess = async (response) => {
         if (!response?.credential) {
-          setError("Google login failed. Please try again.");
+          setError("Google login failed. No credential received.");
           return;
         }
         try {
-          const base64Payload = response.credential.split(".")[1] || "";
-          const normalized = base64Payload.replace(/-/g, "+").replace(/_/g, "/");
-          const payload = JSON.parse(atob(normalized));
+          const payload = decodeGoogleCredential(response.credential);
           if (!payload?.email) {
             setError("Google did not return a valid email.");
             return;
@@ -134,6 +141,9 @@ export default function Auth() {
         catch {
           setError("Unable to process Google login. Please try again.");
         }
+      };
+      const handleGoogleError = () => {
+        setError(`Google OAuth is not configured for this domain (${currentOrigin}). Add this URL to Authorized JavaScript origins in Google Cloud, set VITE_GOOGLE_CLIENT_ID in Netlify, and redeploy.`);
       };
     return (<div className="min-h-screen bg-background flex">
       {/* Left Panel - Illustration */}
@@ -275,7 +285,7 @@ export default function Auth() {
             </div>
           </div>
           {googleClientId ? (<div className="flex justify-center bg-card/55 border border-white/15 backdrop-blur-xl rounded-2xl py-2.5">
-              <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError("Google login failed. Please try again.")} text="continue_with" size="large" shape="pill" useOneTap={false}/>
+              <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} text="continue_with" size="large" shape="pill" useOneTap={false}/>
             </div>) : (<button type="button" className="w-full flex items-center justify-center gap-3 border border-white/15 bg-card/55 backdrop-blur-xl rounded-2xl py-3 text-sm font-medium text-muted-foreground cursor-not-allowed" title="Set VITE_GOOGLE_CLIENT_ID in your .env to enable Google login" disabled>
               Continue with Google (configure client id)
             </button>)}
