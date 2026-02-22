@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
 const AuthContext = createContext(null);
 const MOCK_USERS_KEY = "stayvista_mock_users";
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "Admin@123";
 const DEFAULT_AVATARS = {
     male: "https://api.dicebear.com/7.x/personas/svg?seed=male-traveller&backgroundType=gradientLinear",
     female: "https://api.dicebear.com/7.x/personas/svg?seed=female-traveller&backgroundType=gradientLinear",
@@ -29,8 +31,25 @@ const setStoredUsers = (users) => {
 };
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const login = async (email, _password, role) => {
+    const login = async (email, password, role) => {
         await new Promise((resolve) => setTimeout(resolve, 800));
+        if (role === "admin") {
+            const normalizedInput = (email || "").trim().toLowerCase();
+            const isValidAdmin = normalizedInput === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+            if (!isValidAdmin) {
+                throw new Error("Invalid admin credentials");
+            }
+            setUser({
+                id: "admin-fixed",
+                name: "Admin",
+                email: ADMIN_USERNAME,
+                role: "admin",
+                gender: "other",
+                avatar: getDefaultAvatarByGender("other"),
+                phone: "",
+            });
+            return;
+        }
         const storedUsers = getStoredUsers();
         const existingUser = storedUsers.find((candidate) => candidate.email.toLowerCase() === email.toLowerCase());
         const gender = normalizeGender(existingUser?.gender);
@@ -46,6 +65,9 @@ export const AuthProvider = ({ children }) => {
     };
     const signup = async (data) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (data.role === "admin") {
+            throw new Error("Admin signup is disabled");
+        }
         const normalizedGender = normalizeGender(data.gender);
         const newUser = {
             id: "user-" + Date.now(),
@@ -64,6 +86,9 @@ export const AuthProvider = ({ children }) => {
     };
     const loginWithGoogle = async ({ email, name, avatar, role = "tourist" }) => {
         await new Promise((resolve) => setTimeout(resolve, 500));
+        if (role === "admin") {
+            throw new Error("Admin Google login is disabled");
+        }
         const storedUsers = getStoredUsers();
         const existingUser = storedUsers.find((candidate) => candidate.email.toLowerCase() === email.toLowerCase());
         const gender = normalizeGender(existingUser?.gender);

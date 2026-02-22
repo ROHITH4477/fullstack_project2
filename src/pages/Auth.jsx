@@ -69,6 +69,14 @@ export default function Auth() {
         password: "",
         confirmPassword: "",
     });
+    const visibleRoles = isSignup ? roles.filter((role) => role.id !== "admin") : roles;
+
+    useEffect(() => {
+      if (isSignup && selectedRole === "admin") {
+        setSelectedRole("tourist");
+      }
+    }, [isSignup, selectedRole]);
+
     useEffect(() => {
         if (isLoggedIn && user) {
             switch (user.role) {
@@ -207,7 +215,7 @@ export default function Auth() {
           <div className="mb-6">
             <p className="text-sm font-semibold text-foreground mb-3">I am a...</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {roles.map((role) => (<button key={role.id} onClick={() => setSelectedRole(role.id)} className={`relative p-3 rounded-2xl border text-center transition-all duration-200 ${selectedRole === role.id
+              {visibleRoles.map((role) => (<button key={role.id} onClick={() => setSelectedRole(role.id)} className={`relative p-3 rounded-2xl border text-center transition-all duration-200 ${selectedRole === role.id
                 ? "border-primary/40 bg-primary/12 shadow-md scale-[1.02]"
                 : "border-white/10 bg-card/55 hover:border-primary/30 hover:bg-primary/8"}`}>
                   <span className="text-xl block mb-1">{role.emoji}</span>
@@ -226,8 +234,17 @@ export default function Auth() {
                 <input type="text" required className="input-search w-full" placeholder="Your full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}/>
               </div>)}
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Email Address</label>
-              <input type="email" required className="input-search w-full" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}/>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+                {!isSignup && selectedRole === "admin" ? "Username" : "Email Address"}
+              </label>
+              <input
+                type={!isSignup && selectedRole === "admin" ? "text" : "email"}
+                required
+                className="input-search w-full"
+                placeholder={!isSignup && selectedRole === "admin" ? "admin" : "you@example.com"}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
             </div>
             {isSignup && (<div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Phone (optional)</label>
