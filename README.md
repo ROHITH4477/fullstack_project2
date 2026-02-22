@@ -83,6 +83,8 @@ VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 ```
 
+Do not wrap the value in quotes.
+
 7. Redeploy the site after adding/changing env vars.
 
 8. Restart dev server (local):

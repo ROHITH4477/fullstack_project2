@@ -54,7 +54,7 @@ export default function Auth() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
   const { login, signup, loginWithGoogle, isLoggedIn, user } = useAuth();
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim().replace(/^['\"]|['\"]$/g, "");
   const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
     const [isSignup, setIsSignup] = useState(searchParams.get("mode") === "signup");
     const [selectedRole, setSelectedRole] = useState("tourist");
@@ -143,7 +143,7 @@ export default function Auth() {
         }
       };
       const handleGoogleError = () => {
-        setError(`Google OAuth is not configured for this domain (${currentOrigin}). Add this URL to Authorized JavaScript origins in Google Cloud, set VITE_GOOGLE_CLIENT_ID in Netlify, and redeploy.`);
+        setError(`Google OAuth failed on ${currentOrigin}. Ensure this exact origin is in Google Authorized JavaScript origins, VITE_GOOGLE_CLIENT_ID is set in Netlify (without quotes), then redeploy.`);
       };
     return (<div className="min-h-screen bg-background flex">
       {/* Left Panel - Illustration */}
