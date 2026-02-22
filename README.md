@@ -60,6 +60,29 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Google login setup
+
+Google sign-in is integrated in the auth page and is enabled when `VITE_GOOGLE_CLIENT_ID` is configured.
+
+1. Go to Google Cloud Console and create/select a project.
+2. Configure OAuth consent screen (External/Internal based on your need).
+3. Create an OAuth Client ID of type **Web application**.
+4. Add authorized JavaScript origins:
+	- `http://localhost:5173`
+5. Copy client ID and create a `.env` file in the project root:
+
+```sh
+VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
+```
+
+6. Restart dev server:
+
+```sh
+npm run dev
+```
+
+If the env var is missing, the Google button stays disabled with a setup hint.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
