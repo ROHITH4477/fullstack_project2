@@ -1,0 +1,17 @@
+$env:SPRING_PROFILES_ACTIVE = "local"
+$env:DB_URL = "jdbc:mysql://localhost:3306/stayvista_db?useSSL=false&serverTimezone=UTC"
+$env:DB_USERNAME = "your_db_username"
+$env:DB_PASSWORD = "your_db_password"
+$env:DB_DRIVER = "com.mysql.cj.jdbc.Driver"
+$env:MAIL_HOST = "smtp.gmail.com"
+$env:MAIL_PORT = "587"
+$env:MAIL_USERNAME = "your_email@example.com"
+$env:MAIL_PASSWORD = "your_app_password"
+$env:MAIL_SMTP_AUTH = "true"
+$env:MAIL_SMTP_STARTTLS = "true"
+$env:GOOGLE_CLIENT_ID = "your_google_client_id"
+$env:GOOGLE_CLIENT_SECRET = "your_google_client_secret"
+$env:GOOGLE_SCOPE = "email,profile"
+$env:APP_FRONTEND_URL = "http://localhost:5173"
+
+mvn spring-boot:run

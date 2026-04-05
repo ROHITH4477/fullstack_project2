@@ -1,109 +1,84 @@
-# Welcome to your Lovable project
+# StayVista Full Stack App
 
-## Project info
+This repository contains:
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+- A Vite + React frontend in the repo root
+- A Spring Boot backend in [backend](c:/Users/rohit/Music/fullstack-project5/backend)
 
-## How can I edit this code?
+## Local development
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Frontend:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## Google login setup
-
-Google sign-in is integrated in the auth page and is enabled when `VITE_GOOGLE_CLIENT_ID` is configured.
-
-1. Go to Google Cloud Console and create/select a project.
-2. Configure OAuth consent screen (External/Internal based on your need).
-3. Create an OAuth Client ID of type **Web application**.
-4. Add authorized JavaScript origins:
-	- `http://localhost:5173`
-	- `https://<your-netlify-site>.netlify.app`
-	- `https://<your-custom-domain>` (if applicable)
-5. Copy client ID and create a `.env` file in the project root:
+Backend:
 
 ```sh
-VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
+cd backend
+mvn spring-boot:run
 ```
 
-6. For Netlify deploys, add the same variable in **Site settings → Environment variables**:
+Frontend env example:
 
 ```sh
-VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
+VITE_API_BASE_URL=http://localhost:2026
 ```
 
-Do not wrap the value in quotes.
+Backend env example:
 
-7. Redeploy the site after adding/changing env vars.
+See [backend/.env.example](c:/Users/rohit/Music/fullstack-project5/backend/.env.example).
 
-8. Restart dev server (local):
+## Google OAuth
+
+Google sign-in is handled by the backend OAuth flow.
+
+Add these redirect URIs in Google Cloud Console:
+
+- `http://localhost:2026/login/oauth2/code/google`
+- `https://<your-render-backend>.onrender.com/login/oauth2/code/google`
+
+Set these backend env vars:
 
 ```sh
-npm run dev
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+APP_FRONTEND_URL=http://localhost:5173
 ```
 
-If the env var is missing, the Google button stays disabled with a setup hint.
+For production, set `APP_FRONTEND_URL` to your Render frontend URL.
 
-## How can I deploy this project?
+## Render deployment
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+This repo now includes:
 
-## Can I connect a custom domain to my Lovable project?
+- [render.yaml](c:/Users/rohit/Music/fullstack-project5/render.yaml)
+- [backend/Dockerfile](c:/Users/rohit/Music/fullstack-project5/backend/Dockerfile)
 
-Yes, you can!
+Recommended deployment flow:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Push this repo to GitHub.
+2. In Render, create a Blueprint from the repo.
+3. Create or connect a PostgreSQL database.
+4. Fill in the prompted env vars in Render.
+5. Deploy the backend first, then set the frontend `VITE_API_BASE_URL` to that backend URL.
+6. Set `APP_FRONTEND_URL` on the backend to your frontend URL.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
-"# SDP-15-FSAD" 
+Important Render env vars:
+
+- Frontend: `VITE_API_BASE_URL`
+- Backend: `APP_FRONTEND_URL`
+- Backend: `DB_URL`
+- Backend: `DB_USERNAME`
+- Backend: `DB_PASSWORD`
+- Backend: `DB_DRIVER=org.postgresql.Driver`
+- Backend: `GOOGLE_CLIENT_ID`
+- Backend: `GOOGLE_CLIENT_SECRET`
+- Backend: `MAIL_USERNAME`
+- Backend: `MAIL_PASSWORD`
+
+## Security note
+
+Do not commit real secrets to this repository. The tracked env example files now use placeholders only. Rotate any credentials that were previously exposed before pushing to GitHub.

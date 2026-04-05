@@ -18,6 +18,7 @@ import Attractions from "./pages/Attractions";
 import Guides from "./pages/Guides";
 import Dining from "./pages/Dining";
 import NotFound from "./pages/NotFound";
+import OAuthSuccess from "./pages/OAuthSuccess";
 const queryClient = new QueryClient();
 const App = () => (<QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -28,6 +29,7 @@ const App = () => (<QueryClientProvider client={queryClient}>
           <Routes>
             <Route path="/" element={<Index />}/>
             <Route path="/auth" element={<Auth />}/>
+            <Route path="/oauth2/success" element={<OAuthSuccess />}/>
             <Route path="/tourist-dashboard" element={<TouristDashboard />}/>
             <Route path="/host-dashboard" element={<HostDashboard />}/>
             <Route path="/guide-dashboard" element={<GuideDashboard />}/>

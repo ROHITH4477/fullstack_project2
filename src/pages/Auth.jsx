@@ -1,16 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Home, ArrowLeft, User, Building, Map, Shield } from "lucide-react";
-import { GoogleLogin } from "@react-oauth/google";
 import heroImg from "@/assets/hero-bg.jpg";
 import { useAuth } from "@/contexts/AuthContext";
-
-const decodeGoogleCredential = (credential) => {
-  const payloadPart = credential.split(".")[1] || "";
-  const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
-  return JSON.parse(atob(padded));
-};
+import { api } from "@/lib/api";
 
 const roles = [
     {
@@ -53,9 +46,7 @@ const roles = [
 export default function Auth() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-  const { login, signup, loginWithGoogle, isLoggedIn, user } = useAuth();
-  const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim().replace(/^['\"]|['\"]$/g, "");
-  const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
+  const { login, signup, isLoggedIn, user } = useAuth();
     const [isSignup, setIsSignup] = useState(searchParams.get("mode") === "signup");
     const [selectedRole, setSelectedRole] = useState("tourist");
     const [showPassword, setShowPassword] = useState(false);
@@ -127,32 +118,11 @@ export default function Auth() {
             setLoading(false);
         }
     };
-      const handleGoogleSuccess = async (response) => {
-        if (!response?.credential) {
-          setError("Google login failed. No credential received.");
-          return;
-        }
-        try {
-          const payload = decodeGoogleCredential(response.credential);
-          if (!payload?.email) {
-            setError("Google did not return a valid email.");
-            return;
-          }
-          setError("");
-          await loginWithGoogle({
-            email: payload.email,
-            name: payload.name,
-            avatar: payload.picture,
-            role: selectedRole,
-          });
-        }
-        catch {
-          setError("Unable to process Google login. Please try again.");
-        }
-      };
-      const handleGoogleError = () => {
-        setError(`Google OAuth failed on ${currentOrigin}. Ensure this exact origin is in Google Authorized JavaScript origins, VITE_GOOGLE_CLIENT_ID is set in Netlify (without quotes), then redeploy.`);
-      };
+    const handleGoogleSignIn = () => {
+      setError("");
+      const target = new URL("/oauth2/authorization/google", api.defaults.baseURL || window.location.origin);
+      window.location.href = target.toString();
+    };
     return (<div className="min-h-screen bg-background flex">
       {/* Left Panel - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
@@ -301,11 +271,9 @@ export default function Auth() {
               <span className="bg-background px-3">or continue with</span>
             </div>
           </div>
-          {googleClientId ? (<div className="flex justify-center bg-card/55 border border-white/15 backdrop-blur-xl rounded-2xl py-2.5">
-              <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleError} text="continue_with" size="large" shape="pill" useOneTap={false}/>
-            </div>) : (<button type="button" className="w-full flex items-center justify-center gap-3 border border-white/15 bg-card/55 backdrop-blur-xl rounded-2xl py-3 text-sm font-medium text-muted-foreground cursor-not-allowed" title="Set VITE_GOOGLE_CLIENT_ID in your .env to enable Google login" disabled>
-              Continue with Google (configure client id)
-            </button>)}
+          <button type="button" onClick={handleGoogleSignIn} className="w-full flex items-center justify-center gap-3 border border-white/15 bg-card/55 backdrop-blur-xl rounded-2xl py-3 text-sm font-medium text-foreground hover:border-primary/30 hover:bg-primary/8 transition-colors">
+            Continue with Google
+          </button>
 
           {/* Secure notice */}
           <div className="flex items-center gap-2 mt-4 justify-center text-xs text-muted-foreground">
