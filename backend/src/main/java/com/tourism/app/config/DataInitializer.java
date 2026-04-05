@@ -115,12 +115,7 @@ public class DataInitializer {
                 "local",
                 Set.of(roles.get(RoleName.ROLE_HOST), roles.get(RoleName.ROLE_GUIDE))
         ));
-        users.put("vikram.singh@stayvista.in", upsertUser(
-                "Vikram Singh",
-                "vikram.singh@stayvista.in",
-                "local",
-                Set.of(roles.get(RoleName.ROLE_ADMIN))
-        ));
+        users.put("admin", upsertAdminUser(roles.get(RoleName.ROLE_ADMIN)));
 
         return users;
     }
@@ -306,7 +301,7 @@ public class DataInitializer {
         upsertUploadedFile("passport-rahul-demo.pdf", "application/pdf", 312640L, "uploads/demo/passport-rahul-demo.pdf", users.get("rahul.verma@stayvista.in"));
         upsertUploadedFile("profile-meera-demo.jpg", "image/jpeg", 184320L, "uploads/demo/profile-meera-demo.jpg", users.get("meera.nair@stayvista.in"));
         upsertUploadedFile("villa-nilgiri-cover.jpg", "image/jpeg", 428032L, "uploads/demo/villa-nilgiri-cover.jpg", users.get("arjun.mehta@stayvista.in"));
-        upsertUploadedFile("booking-invoice-demo.pdf", "application/pdf", 276480L, "uploads/demo/booking-invoice-demo.pdf", users.get("vikram.singh@stayvista.in"));
+        upsertUploadedFile("booking-invoice-demo.pdf", "application/pdf", 276480L, "uploads/demo/booking-invoice-demo.pdf", users.get("admin"));
     }
 
     private void seedRefreshTokens(Map<String, User> users) {
@@ -336,7 +331,7 @@ public class DataInitializer {
         );
         upsertRefreshToken(
                 "rt_vikram_demo_2026_seed",
-                users.get("vikram.singh@stayvista.in"),
+                users.get("admin"),
                 LocalDateTime.now().plusDays(12),
                 true
         );
@@ -353,6 +348,22 @@ public class DataInitializer {
             user.setCreatedAt(LocalDateTime.now());
         }
         user.setRoles(new HashSet<>(roles));
+        return userRepository.save(user);
+    }
+
+    private User upsertAdminUser(Role adminRole) {
+        User user = userRepository.findByEmail("admin")
+                .or(() -> userRepository.findFirstByRoles_Name(RoleName.ROLE_ADMIN))
+                .orElseGet(User::new);
+        user.setFullName("Admin");
+        user.setEmail("admin");
+        user.setPassword(passwordEncoder.encode("Admin@123"));
+        user.setEnabled(true);
+        user.setProvider("local");
+        if (user.getCreatedAt() == null) {
+            user.setCreatedAt(LocalDateTime.now());
+        }
+        user.setRoles(new HashSet<>(Set.of(adminRole)));
         return userRepository.save(user);
     }
 
