@@ -53,15 +53,21 @@ export default function Payment() {
   const [cardName, setCardName] = useState("");
   const [upiId, setUpiId] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("");
+  const touristId = Number(user?.id);
 
   const handlePay = async () => {
-    if (!isLoggedIn || !user?.id) {
+    if (!isLoggedIn || !Number.isInteger(touristId) || touristId <= 0) {
       toast.error("Please sign in before making a payment.");
       navigate("/auth?mode=login");
       return;
     }
 
-    if (!bookingDraft?.homestayId || !bookingDraft?.touristId || !bookingDraft?.checkIn || !bookingDraft?.checkOut) {
+    const draftTouristId = Number(bookingDraft?.touristId);
+    const resolvedTouristId = Number.isInteger(touristId) && touristId > 0
+      ? touristId
+      : draftTouristId;
+
+    if (!bookingDraft?.homestayId || !Number.isInteger(resolvedTouristId) || resolvedTouristId <= 0 || !bookingDraft?.checkIn || !bookingDraft?.checkOut) {
       toast.error("Your booking details are missing. Please start from the booking page again.");
       navigate(`/booking/${id}?checkin=${checkIn}&checkout=${checkOut}`);
       return;
@@ -105,7 +111,7 @@ export default function Payment() {
     setLoading(true);
     try {
       const bookingPayload = {
-        touristId: bookingDraft.touristId,
+        touristId: resolvedTouristId,
         homestayId: bookingDraft.homestayId,
         checkInDate: bookingDraft.checkIn,
         checkOutDate: bookingDraft.checkOut,

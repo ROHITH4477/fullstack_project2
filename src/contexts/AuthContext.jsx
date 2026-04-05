@@ -17,6 +17,11 @@ const normalizeGender = (value) => {
   return "other";
 };
 
+const normalizeUserId = (value) => {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+};
+
 const getDefaultAvatarByGender = (gender) => DEFAULT_AVATARS[normalizeGender(gender)] || DEFAULT_AVATARS.other;
 
 const normalizeRole = (roles = [], fallback = "tourist") => {
@@ -36,7 +41,22 @@ const loadStoredSession = () => {
     }
 
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : null;
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+
+    if (parsed.user) {
+      const normalizedId = normalizeUserId(parsed.user.id ?? parsed.id);
+      parsed.user = {
+        ...parsed.user,
+        id: normalizedId,
+      };
+      if (normalizedId) {
+        parsed.id = normalizedId;
+      }
+    }
+
+    return parsed;
   } catch {
     return null;
   }
@@ -59,9 +79,10 @@ const clearStoredSession = () => {
 const toFrontendUser = (authResponse, extras = {}) => {
   const role = normalizeRole(authResponse.roles, extras.role);
   const gender = normalizeGender(extras.gender);
+  const id = normalizeUserId(authResponse.id);
 
   return {
-    id: authResponse.id,
+    id,
     name: authResponse.fullName,
     email: authResponse.email,
     role,

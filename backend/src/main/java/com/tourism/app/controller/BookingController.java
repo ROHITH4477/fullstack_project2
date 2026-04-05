@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +23,8 @@ public class BookingController {
     @Operation(summary = "Create booking")
     @PreAuthorize("hasAnyRole('TOURIST','ADMIN')")
     @PostMapping
-    public ResponseEntity<BookingResponse> create(@Valid @RequestBody BookingRequest request) {
-        return ResponseEntity.ok(bookingService.create(request));
+    public ResponseEntity<BookingResponse> create(@Valid @RequestBody BookingRequest request, Authentication authentication) {
+        return ResponseEntity.ok(bookingService.create(request, authentication.getName()));
     }
 
     @Operation(summary = "Get bookings for tourist")

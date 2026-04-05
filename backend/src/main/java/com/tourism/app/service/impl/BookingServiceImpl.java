@@ -31,13 +31,14 @@ public class BookingServiceImpl implements BookingService {
     private final ModelMapper modelMapper;
 
     @Override
-    public BookingResponse create(BookingRequest request) {
+    public BookingResponse create(BookingRequest request, String authenticatedEmail) {
         if (request.getCheckOutDate().isBefore(request.getCheckInDate())) {
             throw new BadRequestException("Check-out date cannot be before check-in date");
         }
 
-        User tourist = userRepository.findById(request.getTouristId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tourist not found"));
+        User tourist = userRepository.findByEmail(authenticatedEmail)
+                .orElseGet(() -> userRepository.findById(request.getTouristId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Tourist not found")));
 
         Homestay homestay = homestayRepository.findById(request.getHomestayId())
                 .orElseThrow(() -> new ResourceNotFoundException("Homestay not found"));

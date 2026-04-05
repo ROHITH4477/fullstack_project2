@@ -33,6 +33,7 @@ export default function Booking() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const touristId = Number(user?.id);
 
   useEffect(() => {
     if (!user) {
@@ -47,7 +48,7 @@ export default function Booking() {
   }, [user]);
 
   const handleProceedToPayment = () => {
-    if (!isLoggedIn || !user?.id) {
+    if (!isLoggedIn || !Number.isInteger(touristId) || touristId <= 0) {
       toast.error("Please sign in with your StayVista account to continue.");
       navigate("/auth?mode=login");
       return;
@@ -77,7 +78,7 @@ export default function Booking() {
     sessionStorage.setItem(
       BOOKING_DRAFT_KEY,
       JSON.stringify({
-        touristId: user.id,
+        touristId,
         homestayId: Number(id),
         homestayName: homestay.name,
         amount: total,

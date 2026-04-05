@@ -6,7 +6,7 @@ import com.tourism.app.dto.booking.BookingResponse;
 import java.util.List;
 
 public interface BookingService {
-    BookingResponse create(BookingRequest request);
+    BookingResponse create(BookingRequest request, String authenticatedEmail);
     List<BookingResponse> getBookingsByTourist(Long touristId);
     BookingResponse updateStatus(Long bookingId, String status);
     long countByStatus(String status);

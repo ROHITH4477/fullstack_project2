@@ -73,6 +73,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String targetUrl = UriComponentsBuilder.fromUriString(primaryFrontendUrl + "/oauth2/success")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
+                .queryParam("id", user.getId())
                 .queryParam("email", user.getEmail())
                 .queryParam("fullName", user.getFullName())
                 .queryParam("role", role)

@@ -12,17 +12,18 @@ export default function OAuthSuccess() {
   useEffect(() => {
     const accessToken = searchParams.get("accessToken");
     const refreshToken = searchParams.get("refreshToken");
+    const id = searchParams.get("id");
     const email = searchParams.get("email");
     const fullName = searchParams.get("fullName");
     const role = searchParams.get("role");
 
-    if (!accessToken || !email) {
+    if (!accessToken || !email || !id) {
       navigate("/auth", { replace: true });
       return;
     }
 
     completeOAuthLogin({
-      id: Date.now(),
+      id: Number(id),
       accessToken,
       refreshToken: refreshToken || "",
       tokenType: "Bearer",
