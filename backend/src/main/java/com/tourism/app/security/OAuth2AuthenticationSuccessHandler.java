@@ -70,7 +70,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .map(savedRole -> savedRole.getName().name())
                 .orElse(RoleName.ROLE_TOURIST.name());
 
-        String targetUrl = UriComponentsBuilder.fromUriString(primaryFrontendUrl + "/#/oauth2/success")
+        String queryString = UriComponentsBuilder.newInstance()
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("id", user.getId())
@@ -78,6 +78,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .queryParam("fullName", user.getFullName())
                 .queryParam("role", role)
                 .build().toUriString();
+
+        String normalizedFrontendUrl = primaryFrontendUrl.endsWith("/")
+                ? primaryFrontendUrl.substring(0, primaryFrontendUrl.length() - 1)
+                : primaryFrontendUrl;
+
+        String targetUrl = normalizedFrontendUrl + "/#/oauth2/success" + queryString;
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
