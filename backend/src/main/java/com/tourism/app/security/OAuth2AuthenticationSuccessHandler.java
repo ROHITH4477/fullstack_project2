@@ -83,11 +83,15 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private String resolvePrimaryFrontendUrl() {
-        return java.util.Arrays.stream(frontendUrl.split(","))
+        java.util.List<String> urls = java.util.Arrays.stream(frontendUrl.split(","))
                 .map(String::trim)
                 .filter(url -> !url.isEmpty())
+                .toList();
+
+        return urls.stream()
+                .filter(url -> !url.contains("localhost") && !url.contains("127.0.0.1"))
                 .findFirst()
-                .orElse("http://localhost:5173");
+                .orElseGet(() -> urls.stream().findFirst().orElse("http://localhost:5173"));
     }
 
     private String createRefreshToken(User user) {

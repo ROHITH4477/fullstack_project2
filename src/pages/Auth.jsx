@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Home, ArrowLeft, User, Building, Map, Shield } from "lucide-react";
 import heroImg from "@/assets/hero-bg.jpg";
 import { useAuth } from "@/contexts/AuthContext";
-import { api } from "@/lib/api";
+import { api, HAS_EXPLICIT_API_BASE_URL } from "@/lib/api";
 
 const roles = [
     {
@@ -84,6 +84,26 @@ export default function Auth() {
             }
         }
     }, [isLoggedIn, user, navigate]);
+
+    const getErrorMessage = (err) => {
+      const backendMessage = err?.response?.data?.message;
+      const backendError = err?.response?.data?.error;
+
+      if (typeof backendMessage === "string" && backendMessage.trim()) {
+        return backendMessage;
+      }
+
+      if (typeof backendError === "string" && backendError.trim()) {
+        return backendError;
+      }
+
+      if (typeof err?.message === "string" && err.message.trim()) {
+        return err.message;
+      }
+
+      return "Something went wrong. Please try again.";
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -111,8 +131,8 @@ export default function Auth() {
                 await login(form.email, form.password, selectedRole);
             }
         }
-        catch {
-            setError("Something went wrong. Please try again.");
+        catch (err) {
+            setError(getErrorMessage(err));
         }
         finally {
             setLoading(false);
@@ -120,7 +140,20 @@ export default function Auth() {
     };
     const handleGoogleSignIn = () => {
       setError("");
-      const target = new URL("/oauth2/authorization/google", api.defaults.baseURL || window.location.origin);
+      const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+      if (!HAS_EXPLICIT_API_BASE_URL && !isLocalHost) {
+        setError("Google sign-in is not configured for this deployment yet. Set the frontend Render env var VITE_API_BASE_URL to your backend URL and redeploy.");
+        return;
+      }
+
+      const apiBase = api.defaults.baseURL || window.location.origin;
+      const target = new URL("/oauth2/authorization/google", apiBase);
+
+      if (!isLocalHost && target.origin === window.location.origin) {
+        setError("Google sign-in is pointing to the frontend URL. Set VITE_API_BASE_URL to your backend URL (for example: https://stayvistaindia.onrender.com) and redeploy frontend.");
+        return;
+      }
+
       window.location.href = target.toString();
     };
     return (<div className="min-h-screen bg-background flex">
